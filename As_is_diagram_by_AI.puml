@@ -1,0 +1,94 @@
+@startuml
+title First-Time Login with Certificate File
+
+|Taxpayer|
+start
+:Enter personal data;
+
+if (Registration type?) then (Private individual)
+  :Enter identification number,\ndate of birth, e-mail address,\nand user name;
+else (Organization)
+  :Enter federal state, organization tax number,\ncontact-person details,\nand user name;
+endif
+
+|ELSTER Portal|
+:Submit registration data;
+
+|Async Delivery Channels\n(email + postal service)|
+:Send six-digit verification code by e-mail;
+
+|Taxpayer|
+:Enter verification code on Mein ELSTER;
+
+|ELSTER Portal|
+:Confirm e-mail address;
+
+|Taxpayer|
+if (Identity verification method?) then (By mail)
+
+  |Async Delivery Channels\n(email + postal service)|
+  split
+    :Send Activation ID by e-mail;
+  split again
+    :Deliver Activation Code by post;
+  end split
+
+  |Taxpayer|
+  :Open activation link after receiving\nboth activation data;
+  :Enter Activation ID and Activation Code;
+
+  |ELSTER Portal|
+  :Activate access;
+
+else (Online verification)
+
+  |Taxpayer|
+  if (Online method?) then (Nect Wallet)
+    :Use smartphone, Nect Wallet app,\nand identity card;
+
+    |Online-ID Provider\n(AusweisApp / Nect Wallet-App)|
+    :Record identity card and selfie video;\nverify video and voice recording;
+
+  else (Online ID function)
+    |Taxpayer|
+    :Use identity card and PIN with\nAusweisApp and NFC device or card reader;
+
+    |Online-ID Provider\n(AusweisApp / Nect Wallet-App)|
+    :Perform online ID verification;
+  endif
+
+  |ELSTER Portal|
+  :Create user account;
+endif
+
+:Display secure login options;
+
+|Taxpayer|
+:Select certificate file\nunder "Other Login options";
+:Define certificate file name\nand password;
+
+|ELSTER Portal|
+:Create certificate file;
+
+|Taxpayer|
+:Download and save the certificate\nwith the .pfx extension;
+:Select the downloaded certificate file\nand enter its password;
+
+|ELSTER Portal|
+:Perform initial login;
+
+|Taxpayer|
+stop
+
+legend
+  |= Notation |= Meaning |
+  | Filled circle | Initial node: process begins |
+  | Rounded rectangle | Action performed by the named participant |
+  | Diamond | Decision or merge based on an alternative path |
+  | Thick bar | Fork and join of separate delivery activities |
+  | Arrow | Control flow between actions |
+  | Bull's-eye | Activity final node: process ends |
+  | Swimlane | Participant responsible for the enclosed actions |
+endlegend
+
+@enduml
