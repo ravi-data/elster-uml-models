@@ -1,0 +1,138 @@
+@startuml ELSTER_AsIs_FirstTimeLogin
+
+title As-Is: First-Time Login to  ELSTER via Certificate File
+
+|Taxpayer|
+start
+:Navigate to elster.de
+and select "create an account";
+
+if (Registration for?) then ([Private individual])
+:Enter Identification Number,
+Date of Birth, Email, Username;
+else ([Organization])
+:Enter Federal State, Tax Number,
+Contact person details, Username;
+endif
+
+repeat
+    :Submit personal details;
+    |ELSTER Portal|
+repeat while (Submitted data valid?) is
+([no]) not ([yes])
+
+:Send verification email;
+
+|Async Delivery Channels \n Email System and Postal Service|
+:Deliver verification email;
+
+|Taxpayer|
+:Enter 6-digit verification code
+from email;
+
+|ELSTER Portal|
+:Prompt for identification method;
+
+|Taxpayer|
+if (Identity verification method?) then ([Online Identity Verification])
+if (Online-ID option?) then ([Online ID function])
+:Perform online identity check
+using eID + AusweisApp;
+|Online-ID Provider \n AusweisApp, Nect Wallet-App|
+:Verify identity and
+send Auth Token to Portal;
+else ([Nect Wallet app])
+|Taxpayer|
+:Perform online identity check
+using eID + Nect Wallet app;
+|Online-ID Provider \n AusweisApp, Nect Wallet-App|
+:Verify identity and
+send Auth Token to Portal;
+endif
+|ELSTER Portal|
+:Receive and validate
+Auth Token;
+else ([Identity verification by mail])
+|ELSTER Portal|
+:Generate Activation ID
+and Activation Code;
+fork
+    :Send Activation ID
+    via email;
+    |Async Delivery Channels \n Email System and Postal Service|
+    :Deliver email with
+    Activation ID;
+fork again
+    |ELSTER Portal|
+    :Send Activation Code
+    via postal letter;
+    |Async Delivery Channels \n Email System and Postal Service|
+    :Deliver letter with
+    Activation Code
+    (5-10 working days);
+end fork
+
+|Taxpayer|
+:Open verification link from email
+and Enter Activation ID & Activation Code;
+
+|ELSTER Portal|
+if (Activation data valid?) then ([no])
+|Taxpayer|
+:Retry or request
+new activation;
+end
+else ([yes])
+endif
+endif
+
+|ELSTER Portal|
+:Prompt to set up
+secure login method;
+
+|Taxpayer|
+:Select "Other Login options"
+-> "Certificate file";
+
+
+:Initiate first-time login
+with certificate file;
+
+repeat
+    :Browse and select
+    .pfx file and enter password;
+    |ELSTER Portal|
+    :Validate certificate
+    and password;
+    if (Certificate valid\n& password correct?) then ([yes])
+    |ELSTER Portal|
+    stop
+    else ([no])
+    |Taxpayer|
+
+    endif
+    backward :Retry to login;
+repeat while (Abort login attempt?) is
+([no]) not ([yes])
+end
+
+
+
+legend bottom
+|= Notation |= UML 2.5 element |= Meaning |
+| Filled circle | Initial node | Start of the activity flow |
+| Rounded rectangle | Action | An executable step within the activity |
+| Diamond (1 in / n out) | Decision node | Conditional branching on guard `[condition]` |
+| Diamond (n in / 1 out) | Merge node | Reconvergence of alternative branches |
+| Solid bar | Fork / Join node | Splitting into / synchronising parallel flows |
+| Rectangle «pfx file» | Object node | A business artefact passed between actions (the .pfx file) |
+| Solid arrow | Control flow | Sequencing of execution between nodes |
+| Vertical partitions | Activity partitions (swimlanes) | Allocation of actions to responsible actors |
+| Filled circle in ring | Activity final node | Termination of the entire activity (success) |
+| Circle with cross | Flow final node | Termination of a single flow only (failure branch) |
+----
+Figure 1: As-Is UML Activity Diagram — First-Time Login to Mein ELSTER via Certificate File
+(own illustration, based on ELSTER 2025)
+endlegend
+
+@enduml
